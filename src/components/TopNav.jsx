@@ -1,7 +1,10 @@
 import React from 'react';
-import { Map as MapIcon, Layers, Target, Settings, Menu } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Map as MapIcon, Layers, Target, Settings, LayoutDashboard } from 'lucide-react';
 
 export default function TopNav({ categories, selectedCategory, onSelectCategory, onMenuToggle }) {
+  const navigate = useNavigate();
+
   return (
     <div style={{
       position: 'absolute',
@@ -42,6 +45,25 @@ export default function TopNav({ categories, selectedCategory, onSelectCategory,
           </button>
         ))}
         <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', margin: '0 8px', alignSelf: 'center' }}></div>
+        <button
+          onClick={() => navigate('/dashboard')}
+          style={{
+            padding: '8px 14px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'rgba(15, 23, 42, 0.92)',
+            color: 'white',
+            fontSize: '13px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <LayoutDashboard size={14} />
+          Dashboard
+        </button>
         <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}><Settings size={16} /></button>
       </div>
 

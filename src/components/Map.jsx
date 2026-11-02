@@ -9,7 +9,7 @@ import { Trees } from 'lucide-react';
 // Create a custom modern marker icon using DivIcon
 const createCustomIcon = () => {
   const iconHtml = renderToString(
-    <div style={{
+    <div className="marker-inner" style={{
       width: '32px',
       height: '32px',
       background: '#0F172A',
@@ -34,45 +34,92 @@ const createCustomIcon = () => {
   });
 };
 
-function MapController({ center, zoom }) {
+const customIcon = createCustomIcon();
+
+function MapController({ selectedLocation }) {
   const map = useMap();
+  const prevSelectionId = React.useRef(null);
+
   React.useEffect(() => {
-    if (center) {
-      map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.25 });
+    const stopAnimation = () => map.stop();
+    map.on('zoomstart', stopAnimation);
+    map.on('dragstart', stopAnimation);
+    map.on('mousedown', stopAnimation);
+    return () => {
+      map.off('zoomstart', stopAnimation);
+      map.off('dragstart', stopAnimation);
+      map.off('mousedown', stopAnimation);
+    };
+  }, [map]);
+
+  React.useEffect(() => {
+    if (!selectedLocation) {
+      prevSelectionId.current = null;
+      return;
     }
-  }, [center, zoom, map]);
+    if (prevSelectionId.current === selectedLocation.id) return;
+    prevSelectionId.current = selectedLocation.id;
+
+    map.flyTo([selectedLocation.lat, selectedLocation.lng], 16, {
+      duration: 0.8,
+      easeLinearity: 0.25,
+    });
+  }, [selectedLocation, map]);
+
   return null;
 }
 
 export default function MapView({ locations, selectedLocation, onMarkerClick }) {
   const defaultCenter = [21.1230, 79.0510]; // VNIT Nagpur
-  const center = selectedLocation
-    ? [selectedLocation.lat, selectedLocation.lng]
-    : (locations.length > 0 ? [locations[0].lat, locations[0].lng] : defaultCenter);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
       <MapContainer
-        center={center}
+        center={defaultCenter}
         zoom={14}
         zoomControl={false}
         attributionControl={false}
-        style={{ width: '100%', height: '100%', background: '#0F172A' }}
+        style={{ width: '100%', height: '100%', background: '#e2e8f0' }}
       >
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Modern (Carto Voyager)">
+          <LayersControl.BaseLayer checked name="OpenStreetMap (Standard)">
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="OpenStreetMap (Humanitarian / HOT)">
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by Humanitarian OpenStreetMap Team'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="OpenTopoMap">
+            <TileLayer
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+              maxZoom={17}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Modern (Carto Voyager)">
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://carto.com/">Carto</a>'
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Google Satellite + Roads (Hybrid)">
+            <TileLayer
+              url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+              subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
+              maxZoom={20}
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite (Esri)">
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="OpenStreetMap">
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='Tiles &copy; Esri'
             />
           </LayersControl.BaseLayer>
         </LayersControl>
@@ -81,7 +128,7 @@ export default function MapView({ locations, selectedLocation, onMarkerClick }) 
           <Marker
             key={loc.id}
             position={[loc.lat, loc.lng]}
-            icon={createCustomIcon()}
+            icon={customIcon}
             eventHandlers={{
               click: () => onMarkerClick(loc)
             }}
@@ -97,7 +144,7 @@ export default function MapView({ locations, selectedLocation, onMarkerClick }) 
             </Popup>
           </Marker>
         ))}
-        <MapController center={center} zoom={selectedLocation ? 16 : 14} />
+        <MapController selectedLocation={selectedLocation} />
       </MapContainer>
     </div>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, ArrowRight, User, TrendingUp, Activity } from 'lucide-react';
 
 export default function BottomPanel({ locations, selectedLocation, onSelectLocation }) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
   const totalPlanted = locations.reduce((sum, loc) => sum + loc.treesPlanted, 0);
   const totalTarget = locations.reduce((sum, loc) => sum + loc.target, 0);
 
@@ -16,6 +17,53 @@ export default function BottomPanel({ locations, selectedLocation, onSelectLocat
   // If no location is selected, just use the first one or a default state
   const displayLocation = selectedLocation || locations[0];
 
+  if (isCollapsed) {
+    return (
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '20px',
+        zIndex: 1000,
+        pointerEvents: 'none'
+      }}>
+        <div
+          className="glass-card"
+          style={{
+            pointerEvents: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 14px',
+            borderRadius: '12px'
+          }}
+        >
+          <button
+            onClick={() => setIsCollapsed(false)}
+            style={{
+              border: 'none',
+              background: 'var(--text-main)',
+              color: 'white',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <ArrowRight size={14} />
+            Show Dashboard Data
+          </button>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+            Panel collapsed
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       position: 'absolute',
@@ -28,6 +76,28 @@ export default function BottomPanel({ locations, selectedLocation, onSelectLocat
       gap: '16px',
       pointerEvents: 'none' // allow clicks between cards
     }}>
+      <div style={{ position: 'absolute', right: 0, top: '-50px', pointerEvents: 'auto' }}>
+        <button
+          onClick={() => setIsCollapsed(true)}
+          style={{
+            border: 'none',
+            borderRadius: '10px',
+            background: 'rgba(15, 23, 42, 0.92)',
+            color: 'white',
+            padding: '10px 14px',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 10px 20px rgba(0,0,0,0.15)'
+          }}
+        >
+          <ArrowLeft size={14} />
+          Hide Dashboard Data
+        </button>
+      </div>
 
       {/* 1. Selected Location Detail Card */}
       <div className="glass-card" style={{ pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>

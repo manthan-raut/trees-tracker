@@ -29,7 +29,8 @@ body {
   font-family: 'Rubik', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -164,6 +165,21 @@ body {
   z-index: 1;
 }
 
+.leaflet-control-layers {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: var(--shadow-sm) !important;
+  font-family: 'Rubik', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 10px 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius-sm);
   padding: 0;
@@ -186,11 +202,17 @@ body {
 }
 
 .custom-marker-modern {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* The leaflet container, keep position unchanged */
 }
 
-.custom-marker-modern:hover {
-  transform: scale(1.15) !important; /* leaflet overrides transform */
+.marker-inner {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  height: 100%;
+}
+
+.custom-marker-modern:hover .marker-inner {
+  transform: scale(1.15);
 }
 
 /* Layout */
@@ -212,4 +234,64 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0,0,0,0.2);
+}
+
+/* Analytics dashboard responsive layout */
+.analytics-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: #f8fafc;
+}
+
+.analytics-wrap {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.analytics-grid-two {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 12px;
+}
+
+.analytics-grid-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .analytics-page {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .analytics-grid-two,
+  .analytics-grid-equal {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .analytics-page {
+    padding: 10px;
+  }
+
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
